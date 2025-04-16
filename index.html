@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Photography Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f5f5f5;
+            --accent-color: #d4af37;
+            --text-color: #333;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            background-color: var(--secondary-color);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .tagline {
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Login */
+        .login-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: border var(--transition-speed);
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #c19b2a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Gallery */
+        .gallery-container {
+            display: none;
+        }
+
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .gallery-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .gallery-header p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .slideshow-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto 40px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 600px;
+        }
+
+        .slideshow-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            object-fit: cover;
+            top: 0;
+            left: 0;
+        }
+
+        .slideshow-slide.active {
+            opacity: 1;
+        }
+
+        .slideshow-prev, .slideshow-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 2rem;
+            padding: 15px;
+            cursor: pointer;
+            z-index: 10;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+        }
+
+        .slideshow-prev:hover, .slideshow-next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .slideshow-prev {
+            left: 20px;
+        }
+
+        .slideshow-next {
+            right: 20px;
+        }
+
+        .grid-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform var(--transition-speed);
+            height: 300px;
+            animation: slideIn 0.5s forwards;
+            animation-delay: calc(var(--item-index) * 0.05s);
+            opacity: 0;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-speed);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            padding: 20px;
+            color: white;
+            transform: translateY(100%);
+            transition: transform var(--transition-speed);
+        }
+
+        .gallery-item:hover .gallery-item-overlay {
+            transform: translateY(0);
+        }
+
+        .download-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--accent-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all var(--transition-speed);
+        }
+
+        .gallery-item:hover .download-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .download-all-btn {
+            margin: 40px auto 0;
+            display: block;
+            max-width: 250px;
+        }
+
+        /* Video indicator */
+        .video-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border: 4px solid white;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity var(--transition-speed);
+        }
+
+        .lightbox-close:hover {
+            opacity: 1;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .lightbox-prev, .lightbox-next {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: background-color 0.3s;
+        }
+
+        .lightbox-prev:hover, .lightbox-next:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all var(--transition-speed);
+        }
+
+        .social-links a:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slideshow-container {
+                height: 400px;
+            }
+
+            .grid-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .gallery-item {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .slideshow-container {
+                height: 300px;
+            }
+
+            .grid-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-item {
+                height: auto;
+                aspect-ratio: 1;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 80%;
+            max-width: 400px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading">
+        <div class="spinner"></div>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Loading your gallery...</div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">RN<span>Studio</span></div>
+        <div class="tagline">Capturing moments, creating memories</div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Login Section -->
+        <div class="login-container" id="loginContainer">
+            <h2>Access Your Gallery</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="accessCode">Access Code</label>
+                    <input type="password" id="accessCode" placeholder="Enter your access code" required>
+                </div>
+                <button type="submit" class="btn btn-block">View My Photos</button>
+            </form>
+            <div id="errorMessage" class="error-message">Incorrect access code. Please try again.</div>
+        </div>
+
+        <!-- Gallery Section -->
+        <div class="gallery-container" id="galleryContainer">
+            <div class="gallery-header">
+                <h2 id="galleryTitle">Your Photo Collection</h2>
+                <p id="galleryDescription">Thank you for choosing me to capture your special moments. Here are your beautiful photographs ready to be downloaded and cherished forever.</p>
+            </div>
+
+            <!-- Slideshow -->
+            <div class="slideshow-container">
+                <!-- Slides will be added dynamically -->
+                <button class="slideshow-prev">❮</button>
+                <button class="slideshow-next">❯</button>
+            </div>
+
+            <!-- Grid Gallery -->
+            <div class="grid-gallery" id="photoGrid">
+                <!-- Photos will be added dynamically -->
+            </div>
+
+            <a href="#" class="btn download-all-btn" id="downloadAllBtn">Download All Photos</a>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <img src="" class="lightbox-content" id="lightboxImg">
+        <div class="lightbox-close">×</div>
+        <div class="lightbox-nav">
+            <button class="lightbox-prev">❮</button>
+            <button class="lightbox-next">❯</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">RN<span>Studio</span></div>
+            <p class="footer-text">Professional photography services capturing your most precious moments with artistry and passion.</p>
+            <div class="social-links">
+                <a href="#" title="Instagram">📷</a>
+                <a href="#" title="Facebook">👍</a>
+                <a href="#" title="Twitter">🐦</a>
+                <a href="#" title="Pinterest">📌</a>
+            </div>
+            <p class="copyright">© 2025 RN Studio Photography. All rights reserved.</p>
+        </div>
+    </footer>
+   <script>
+// Client access codes mapped to Google Drive folder information
+const galleries = {
+    'kalpesh2025': {
+        name: 'kalpesh salaji\'s Wedding',
+        date: 'April 03, 2025',
+        description: 'Beautiful moments from your Wedding day',
+        // Google Drive folder ID
+        folderId: '1KqKPwDYgawY8YgZEj-HtwqdK5NldRj8I',
+        // Optional custom folder thumbnail
+        thumbnail: null
+    },
+// add if you need another folder
+};
+
+// DOM Elements
+const loginForm = document.getElementById('loginForm');
+const accessCodeInput = document.getElementById('accessCode');
+const errorMessage = document.getElementById('errorMessage');
+const loginContainer = document.getElementById('loginContainer');
+const galleryContainer = document.getElementById('galleryContainer');
+const photoGrid = document.getElementById('photoGrid');
+const slideshowContainer = document.querySelector('.slideshow-container');
+const slideshowPrev = document.querySelector('.slideshow-prev');
+const slideshowNext = document.querySelector('.slideshow-next');
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxClose = document.querySelector('.lightbox-close');
+const lightboxPrev = document.querySelector('.lightbox-prev');
+const lightboxNext = document.querySelector('.lightbox-next');
+const downloadAllBtn = document.getElementById('downloadAllBtn');
+const loading = document.querySelector('.loading');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const galleryTitle = document.getElementById('galleryTitle');
+const galleryDescription = document.getElementById('galleryDescription');
+
+// State
+let currentSlide = 0;
+let currentLightboxIndex = 0;
+let currentGallery = null;
+let photosList = [];
+let cachedImages = {};
+let loadedImagesCount = 0;
+
+// Functions
+function updateLoadingProgress(percent, message) {
+    progressFill.style.width = `${percent}%`;
+    progressText.textContent = message || `Loading... ${percent}%`;
+}
+
+function showLoading() {
+    loading.classList.remove('hidden');
+    updateLoadingProgress(5, 'Connecting to your gallery...');
+}
+
+function hideLoading() {
+    loading.classList.add('hidden');
+}
+
+function verifyAccessCode(code) {
+    return galleries[code] !== undefined;
+}
+
+// Improved Google Drive API fetching with caching
+async function fetchGoogleDrivePhotos(folderId) {
+    updateLoadingProgress(10, 'Fetching your photos...');
+    
+    try {
+        // Use session storage to cache the API response if possible
+        const cacheKey = `drive_folder_${folderId}`;
+        const cachedData = sessionStorage.getItem(cacheKey);
+        
+        let data;
+        if (cachedData) {
+            data = JSON.parse(cachedData);
+            updateLoadingProgress(30, 'Using cached photos data...');
+        } else {
+            // Use Google Drive API to list files in the folder
+            const response = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=AIzaSyDg7IMhMjgOGlUIb8kSdBl-f0nkVI5l0hI&fields=files(id,name,mimeType,description)&pageSize=1000`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch folder contents');
+            }
+            
+            data = await response.json();
+            
+            // Cache the response
+            sessionStorage.setItem(cacheKey, JSON.stringify(data));
+            updateLoadingProgress(30, 'Retrieved photos data...');
+        }
+        
+        // Filter for images and videos only
+        const mediaTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm'];
+        const mediaFiles = data.files.filter(file => 
+            mediaTypes.some(type => file.mimeType.includes(type))
+        );
+        
+        updateLoadingProgress(40, 'Processing media files...');
+        
+        // Format the response with proper URLs - use the most reliable format first
+        return mediaFiles.map(file => ({
+            id: file.id,
+            name: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
+            // Use more reliable URL format for direct viewing
+            url: `https://lh3.googleusercontent.com/d/${file.id}`,
+            // High quality thumbnail with larger size parameter
+            thumbnail: `https://drive.google.com/thumbnail?id=${file.id}&sz=w500-h500`,
+            description: file.description || file.name,
+            isVideo: file.mimeType.includes('video'),
+            // Direct download URL - fixed to correctly use uc endpoint
+            downloadUrl: `https://drive.google.com/uc?export=download&id=${file.id}`
+        }));
+    } catch (error) {
+        console.error('Error fetching files from Google Drive:', error);
+        throw error;
+    }
+}
+
+// Fixed download function using Fetch API and Blob
+function downloadFile(url, filename) {
+    // Show loading indicator
+    showLoading();
+    updateLoadingProgress(0, 'Starting download...');
+    
+    // Use a proxy or CORS-friendly method to download
+    // For Google Drive, we need to use the direct download URL format
+    const fileId = url.split('id=')[1];
+    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    
+    fetch(downloadUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            updateLoadingProgress(50, 'Downloading file...');
+            return response.blob();
+        })
+        .then(blob => {
+            updateLoadingProgress(90, 'Preparing file...');
+            
+            // Create a temporary anchor element to trigger the download
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename || 'download';
+            link.style.display = 'none';
+            
+            // Add to document, click it, then remove
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up
+            setTimeout(() => {
+                URL.revokeObjectURL(blobUrl);
+                document.body.removeChild(link);
+                updateLoadingProgress(100, 'Download complete!');
+                setTimeout(hideLoading, 1000);
+            }, 100);
+        })
+        .catch(error => {
+            console.error('Download failed:', error);
+            
+            // Fallback method - open in new tab
+            const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            window.open(directUrl, '_blank');
+            
+            // Hide loading
+            updateLoadingProgress(100, 'Opening download in new tab...');
+            setTimeout(hideLoading, 1000);
+        });
+}
+
+// Optimized parallel loading of images
+function preloadImage(url) {
+    return new Promise((resolve) => {
+        if (cachedImages[url]) {
+            resolve(url); // Already cached
+            return;
+        }
+        
+        const img = new Image();
+        img.onload = () => {
+            cachedImages[url] = true;
+            loadedImagesCount++;
+            
+            // Update loading progress
+            const percent = Math.min(40 + Math.floor((loadedImagesCount / photosList.length) * 60), 95);
+            updateLoadingProgress(percent, `Loading images (${loadedImagesCount}/${photosList.length})...`);
+            
+            resolve(url);
+        };
+        img.onerror = () => {
+            // If thumbnail fails, we'll try the next fallback later
+            resolve(null);
+        };
+        img.src = url;
+    });
+}
+
+// Improved video handling
+function createVideoElement(src, isSlideshow = false) {
+    const video = document.createElement('video');
+    video.src = src;
+    video.controls = true;
+    video.preload = 'metadata';
+    
+    if (isSlideshow) {
+        video.classList.add('slideshow-slide');
+        // Add poster image if available
+        const fileId = src.split('/d/')[1];
+        if (fileId) {
+            video.poster = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800-h800`;
+        }
+    }
+    
+    // Add playback optimization
+    video.addEventListener('canplay', () => {
+        // Add play button overlay
+        if (!video.parentNode.querySelector('.video-play-button')) {
+            const playButton = document.createElement('div');
+            playButton.classList.add('video-play-button');
+            playButton.innerHTML = '▶️';
+            playButton.style.position = 'absolute';
+            playButton.style.top = '50%';
+            playButton.style.left = '50%';
+            playButton.style.transform = 'translate(-50%, -50%)';
+            playButton.style.fontSize = '3rem';
+            playButton.style.cursor = 'pointer';
+            playButton.style.zIndex = '5';
+            
+            playButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (video.paused) {
+                    video.play();
+                    playButton.style.display = 'none';
+                }
+            });
+            
+            video.parentNode.appendChild(playButton);
+        }
+    });
+    
+    // Show play button when video is paused
+    video.addEventListener('pause', () => {
+        const playButton = video.parentNode.querySelector('.video-play-button');
+        if (playButton) {
+            playButton.style.display = 'block';
+        }
+    });
+    
+    // Hide play button when video is playing
+    video.addEventListener('play', () => {
+        const playButton = video.parentNode.querySelector('.video-play-button');
+        if (playButton) {
+            playButton.style.display = 'none';
+        }
+    });
+    
+    return video;
+}
+
+async function displayGallery(code) {
+    // Reset counter
+    loadedImagesCount = 0;
+    
+    // Set current gallery
+    currentGallery = galleries[code];
+    
+    // Update gallery header
+    galleryTitle.textContent = currentGallery.name;
+    galleryDescription.textContent = currentGallery.description || 
+        `These photos were taken on ${currentGallery.date}. Thank you for choosing me to capture your special moments.`;
+    
+    try {
+        // Fetch photos from Google Drive folder
+        photosList = await fetchGoogleDrivePhotos(currentGallery.folderId);
+        
+        if (photosList.length === 0) {
+            updateLoadingProgress(100, 'No photos found in this gallery');
+            return false;
+        }
+        
+        updateLoadingProgress(50, 'Preparing your gallery...');
+        
+        // Start preloading thumbnails in parallel
+        const preloadPromises = photosList.map(media => preloadImage(media.thumbnail));
+        
+        // Create slideshow slides first for faster initial display
+        const slides = document.querySelectorAll('.slideshow-slide');
+        slides.forEach(slide => slide.remove());
+        
+        // Take the first 5 images for the slideshow to show something quickly
+        const initialSlides = photosList.slice(0, 5);
+        
+        initialSlides.forEach((media, index) => {
+            if (media.isVideo) {
+                // Create video container
+                const videoContainer = document.createElement('div');
+                videoContainer.classList.add('slideshow-slide');
+                videoContainer.style.position = 'relative';
+                
+                if (index === 0) {
+                    videoContainer.classList.add('active');
+                }
+                
+                // Create improved video element
+                const videoElement = createVideoElement(media.url, true);
+                videoContainer.appendChild(videoElement);
+                
+                slideshowContainer.appendChild(videoContainer);
+            } else {
+                // Create image element for images
+                const slide = document.createElement('img');
+                slide.src = media.thumbnail; // Use thumbnail first for faster loading
+                slide.dataset.fullSrc = media.url; // Store full URL for later
+                slide.alt = media.name;
+                slide.classList.add('slideshow-slide');
+                slide.setAttribute('loading', 'lazy');
+                if (index === 0) {
+                    slide.classList.add('active');
+                }
+                slideshowContainer.appendChild(slide);
+            }
+        });
+        
+        // Clear any existing content
+        photoGrid.innerHTML = '';
+        
+        // Wait for at least the thumbnails to load
+        await Promise.allSettled(preloadPromises);
+        
+        updateLoadingProgress(80, 'Creating gallery view...');
+        
+        // Use a fragment to improve performance
+        const fragment = document.createDocumentFragment();
+        
+        // Create gallery items with delay between batches
+        const batchSize = 10;
+        for (let i = 0; i < photosList.length; i += batchSize) {
+            const batch = photosList.slice(i, i + batchSize);
+            
+            batch.forEach((media, index) => {
+                const item = document.createElement('div');
+                item.classList.add('gallery-item');
+                item.style.setProperty('--item-index', i + index);
+                
+                // Create image element
+                const img = document.createElement('img');
+                
+                if (media.isVideo) {
+                    // Use thumbnail for videos
+                    img.src = media.thumbnail;
+                    img.alt = media.name;
+                    
+                    // Add video indicator
+                    const videoIndicator = document.createElement('div');
+                    videoIndicator.innerHTML = '▶️';
+                    videoIndicator.classList.add('video-indicator');
+                    item.appendChild(videoIndicator);
+                } else {
+                    // Use thumbnail for gallery view
+                    img.src = media.thumbnail;
+                    img.alt = media.name;
+                    img.dataset.fullSrc = media.url;
+                }
+                
+                // Add the image to the item
+                item.appendChild(img);
+                
+                const overlay = document.createElement('div');
+                overlay.classList.add('gallery-item-overlay');
+                overlay.innerHTML = `
+                    <h3>${media.name}</h3>
+                    <p>${media.description || 'Click to view full size'}</p>
+                `;
+                
+                const downloadBtn = document.createElement('a');
+                downloadBtn.href = "#";
+                downloadBtn.classList.add('download-btn');
+                downloadBtn.innerHTML = '↓';
+                downloadBtn.title = `Download ${media.name}`;
+                downloadBtn.setAttribute('data-id', media.id);
+                downloadBtn.setAttribute('data-name', media.name);
+                
+                // Force download using a click handler - FIXED
+                downloadBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    // Use the helper function for direct download with the file ID
+                    downloadFile(media.downloadUrl, `${media.name}.${media.isVideo ? 'mp4' : 'jpg'}`);
+                });
+                
+                item.appendChild(overlay);
+                item.appendChild(downloadBtn);
+                
+                // Store the index for lightbox navigation
+                item.setAttribute('data-index', i + index);
+                
+                item.addEventListener('click', () => {
+                    if (media.isVideo) {
+                        // Open video in lightbox
+                        openLightbox(media.url, true);
+                        currentLightboxIndex = parseInt(item.getAttribute('data-index'));
+                    } else {
+                        openLightbox(media.url);
+                        currentLightboxIndex = parseInt(item.getAttribute('data-index'));
+                    }
+                });
+                
+                fragment.appendChild(item);
+            });
+            
+            // Add batch to the DOM
+            if (i + batchSize >= photosList.length) {
+                photoGrid.appendChild(fragment);
+            } else {
+                // This creates a small delay between batches to keep UI responsive
+                setTimeout(() => {
+                    photoGrid.appendChild(fragment);
+                }, 10);
+            }
+        }
+        
+        // Finish displaying remaining slideshow items in the background
+        if (photosList.length > 5) {
+            setTimeout(() => {
+                const remainingSlides = photosList.slice(5);
+                remainingSlides.forEach((media, index) => {
+                    if (media.isVideo) {
+                        // Create video container
+                        const videoContainer = document.createElement('div');
+                        videoContainer.classList.add('slideshow-slide');
+                        videoContainer.style.position = 'relative';
+                        
+                        // Create improved video element
+                        const videoElement = createVideoElement(media.url, true);
+                        videoContainer.appendChild(videoElement);
+                        
+                        slideshowContainer.appendChild(videoContainer);
+                    } else {
+                        // Create image element for images
+                        const slide = document.createElement('img');
+                        slide.src = media.thumbnail;
+                        slide.dataset.fullSrc = media.url;
+                        slide.alt = media.name;
+                        slide.classList.add('slideshow-slide');
+                        slide.setAttribute('loading', 'lazy');
+                        slideshowContainer.appendChild(slide);
+                    }
+                });
+            }, 200);
+        }
+        
+        // Update the download all button
+        downloadAllBtn.textContent = "View All in Google Drive";
+        downloadAllBtn.setAttribute('href', `https://drive.google.com/drive/folders/${currentGallery.folderId}`);
+        downloadAllBtn.setAttribute('target', '_blank');
+        
+        updateLoadingProgress(100, 'Gallery loaded successfully!');
+        
+        return true;
+    } catch (error) {
+        console.error('Error fetching photos:', error);
+        updateLoadingProgress(100, 'Failed to load gallery. Please try again.');
+        return false;
+    }
+}
+
+function showGallery() {
+    loginContainer.style.display = 'none';
+    galleryContainer.style.display = 'block';
+    
+    // Start loading full-resolution images in the background
+    setTimeout(loadFullResImages, 1000);
+}
+
+// Load full resolution images in the background after initial display
+function loadFullResImages() {
+    const slides = document.querySelectorAll('.slideshow-slide[data-full-src]');
+    let loadedCount = 0;
+    
+    slides.forEach((slide, index) => {
+        const fullSrc = slide.dataset.fullSrc;
+        
+        // Stagger loading to prevent overwhelming the network
+        setTimeout(() => {
+            if (!cachedImages[fullSrc]) {
+                const img = new Image();
+                img.onload = () => {
+                    cachedImages[fullSrc] = true;
+                    loadedCount++;
+                    
+                    // Replace the src attribute if this slide is currently visible
+                    if (slide.classList.contains('active')) {
+                        slide.src = fullSrc;
+                    }
+                };
+                img.src = fullSrc;
+            }
+        }, index * 200); // Load a new image every 200ms
+    });
+}
+
+function showError() {
+    errorMessage.style.display = 'block';
+    setTimeout(() => {
+        errorMessage.style.display = 'none';
+    }, 3000);
+}
+
+function nextSlide() {
+    const slides = document.querySelectorAll('.slideshow-slide');
+    if (slides.length === 0) return;
+    
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add('active');
+    
+    // Pause all videos when changing slides
+    document.querySelectorAll('.slideshow-slide video').forEach(video => {
+        video.pause();
+    });
+    
+    // If we have the high-res version cached, use it
+    const currentSlideElement = slides[currentSlide];
+    if (currentSlideElement.dataset && currentSlideElement.dataset.fullSrc && cachedImages[currentSlideElement.dataset.fullSrc]) {
+        currentSlideElement.src = currentSlideElement.dataset.fullSrc;
+    }
+}
+
+function prevSlide() {
+    const slides = document.querySelectorAll('.slideshow-slide');
+    if (slides.length === 0) return;
+    
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    
+    // Pause all videos when changing slides
+    document.querySelectorAll('.slideshow-slide video').forEach(video => {
+        video.pause();
+    });
+    
+    // If we have the high-res version cached, use it
+    const currentSlideElement = slides[currentSlide];
+    if (currentSlideElement.dataset && currentSlideElement.dataset.fullSrc && cachedImages[currentSlideElement.dataset.fullSrc]) {
+        currentSlideElement.src = currentSlideElement.dataset.fullSrc;
+    }
+}
+
+function openLightbox(mediaUrl, isVideo = false) {
+    // Show loading indicator
+    lightbox.classList.add('active');
+    showLoading();
+    updateLoadingProgress(10, isVideo ? 'Loading video...' : 'Loading full-size image...');
+    
+    if (!isVideo) {
+        // Create a new image element each time to avoid caching issues
+        const newImg = document.createElement('img');
+        newImg.classList.add('lightbox-content');
+        newImg.id = 'lightboxImg';
+        
+        // Remove existing image if present
+        const oldImg = document.getElementById('lightboxImg');
+        if (oldImg) {
+            oldImg.parentNode.removeChild(oldImg);
+        }
+        
+        // Remove any video elements if they exist
+        const videoElement = lightbox.querySelector('video.lightbox-content');
+        if (videoElement) {
+            lightbox.removeChild(videoElement);
+        }
+        
+        // Insert new image before the close button
+        lightbox.insertBefore(newImg, lightboxClose);
+        
+        // Set up load and error handlers
+        newImg.onload = function() {
+            hideLoading();
+        };
+        
+        newImg.onerror = function() {
+            // Try fallback URL
+            const fileId = mediaUrl.includes('/d/') ? mediaUrl.split('/d/')[1] : mediaUrl.split('id=')[1];
+            newImg.src = `https://drive.google.com/uc?id=${fileId}`;
+            newImg.onerror = function() {
+                hideLoading();
+                alert('Sorry, this image could not be loaded.');
+            };
+        };
+        
+        // Start loading the image
+        newImg.src = mediaUrl;
+    } else {
+        // Handle video - improved video handling
+        const videoContainer = document.createElement('div');
+        videoContainer.classList.add('lightbox-content');
+        videoContainer.style.position = 'relative';
+        videoContainer.style.maxWidth = '90%';
+        videoContainer.style.maxHeight = '90%';
+        
+        const videoElement = document.createElement('video');
+        videoElement.controls = true;
+        videoElement.autoplay = true;
+        videoElement.style.width = '100%';
+        videoElement.style.height = '100%';
+        videoElement.style.maxWidth = '100%';
+        videoElement.style.maxHeight = '90vh';
+        
+        // Remove existing content
+        const existingImg = document.getElementById('lightboxImg');
+        if (existingImg) {
+            existingImg.parentNode.removeChild(existingImg);
+        }
+        
+        const existingVideo = lightbox.querySelector('.lightbox-content');
+        if (existingVideo && existingVideo.tagName !== 'IMG') {
+            lightbox.removeChild(existingVideo);
+        }
+        
+        // Add loading handler
+        videoElement.onloadeddata = function() {
+            hideLoading();
+        };
+        
+        videoElement.onloadedmetadata = function() {
+            hideLoading();
+        };
+        
+        videoElement.onerror = function() {
+            // Try alternate URL format
+            const fileId = mediaUrl.includes('/d/') ? mediaUrl.split('/d/')[1] : mediaUrl.split('id=')[1];
+            videoElement.src = `https://drive.google.com/uc?id=${fileId}`;
+            
+            videoElement.onerror = function() {
+                hideLoading();
+                
+                // Create fallback message
+                const errorMsg = document.createElement('div');
+                errorMsg.classList.add('lightbox-content');
+                errorMsg.style.color = 'white';
+                errorMsg.style.padding = '20px';
+                errorMsg.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                errorMsg.innerHTML = `
+                    <p>Video could not be played directly.</p>
+                    <a href="https://drive.google.com/file/d/${fileId}/view" target="_blank" 
+                       style="color:white; text-decoration:underline; display:block; margin-top:10px; padding:10px; background:rgba(255,255,255,0.2);">
+                       Open video in Google Drive
+                    </a>
+                `;
+                
+                lightbox.insertBefore(errorMsg, lightboxClose);
+            };
+        };
+        
+        // Add play button overlay
+        const playButton = document.createElement('div');
+        playButton.innerHTML = '▶️';
+        playButton.style.position = 'absolute';
+        playButton.style.top = '50%';
+        playButton.style.left = '50%';
+        playButton.style.transform = 'translate(-50%, -50%)';
+        playButton.style.fontSize = '5rem';
+        playButton.style.cursor = 'pointer';
+        playButton.style.zIndex = '5';
+        playButton.style.opacity = '0.8';
+        
+        playButton.addEventListener('click', () => {
+            videoElement.play();
+            playButton.style.display = 'none';
+        });
+        
+        // Add video to container
+        videoContainer.appendChild(videoElement);
+        videoContainer.appendChild(playButton);
+        
+        // Insert before the close button
+        lightbox.insertBefore(videoContainer, lightboxClose);
+        
+        // Set source after adding to DOM
+        videoElement.src = mediaUrl;
+        
+        // Handle paused state
+        videoElement.addEventListener('pause', () => {
+            playButton.style.display = 'block';
+        });
+        
+        videoElement.addEventListener('play', () => {
+            playButton.style.display = 'none';
+        });
+    }
+}
+
+function nextLightboxImage() {
+    if (photosList.length === 0) return;
+    
+    currentLightboxIndex = (currentLightboxIndex + 1) % photosList.length;
+    const media = photosList[currentLightboxIndex];
+    
+    if (media.isVideo) {
+        openLightbox(media.url, true);
+    } else {
+        openLightbox(media.url);
+    }
+}
+
+function prevLightboxImage() {
+    if (photosList.length === 0) return;
+    
+    currentLightboxIndex = (currentLightboxIndex - 1 + photosList.length) % photosList.length;
+    const media = photosList[currentLightboxIndex];
+    
+    if (media.isVideo) {
+        openLightbox(media.url, true);
+    } else {
+        openLightbox(media.url);
+    }
+}
+
+function closeLightbox() {
+    lightbox.classList.remove('active');
+    
+    // Stop video playback if there's a video
+    const videoElement = lightbox.querySelector('video');
+    if (videoElement) {
+        videoElement.pause();
+    }
+}
+
+// Load from URL hash if available
+function checkUrlHash() {
+    const hash = window.location.hash.substring(1);
+    if (hash && verifyAccessCode(hash)) {
+        accessCodeInput.value = hash;
+        loginForm.dispatchEvent(new Event('submit'));
+    }
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    // Show initial loading progress
+    updateLoadingProgress(100, 'Ready!');
+    hideLoading();
+    
+    // Check for direct link access
+    checkUrlHash();
+    
+    // Auto slideshow - only advance slides if not paused on a video
+    setInterval(() => {
+        if (!lightbox.classList.contains('active')) { // Don't advance slides when lightbox is open
+            const currentSlideElement = document.querySelector('.slideshow-slide.active');
+            if (currentSlideElement && currentSlideElement.querySelector('video')) {
+                const video = currentSlideElement.querySelector('video');
+                if (video.paused) {
+                    nextSlide();
+                }
+            } else {
+                nextSlide();
+            }
+        }
+    }, 5000);
+});
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = accessCodeInput.value.trim();
+    
+    if (verifyAccessCode(code)) {
+        showLoading();
+        
+        // Update URL hash for sharing/bookmarking
+        window.location.hash = code;
+        
+        // Load and display gallery
+        const success = await displayGallery(code);
+        
+        if (success) {
+            showGallery();
+        } else {
+            showError();
+        }
+        
+        hideLoading();
+    } else {
+        showError();
+    }
+});
+
+slideshowPrev.addEventListener('click', prevSlide);
+slideshowNext.addEventListener('click', nextSlide);
+
+lightboxClose.addEventListener('click', closeLightbox);
+lightboxPrev.addEventListener('click', prevLightboxImage);
+lightboxNext.addEventListener('click', nextLightboxImage);
+
+lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) {
+        closeLightbox();
+    }
+});
+
+// Improved keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (lightbox.classList.contains('active')) {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        } else if (e.key === 'ArrowRight') {
+            nextLightboxImage();
+        } else if (e.key === 'ArrowLeft') {
+            prevLightboxImage();
+        }
+    } else {
+        // When not in lightbox, keyboard still controls slideshow
+        if (e.key === 'ArrowRight') {
+            nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+            prevSlide();
+        }
+    }
+});
+
+// Touch support for swiping
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleGesture() {
+    const threshold = 50; // Minimum distance for a swipe
+
+    if (touchEndX - touchStartX > threshold) {
+        // Swipe right - go to previous
+        if (lightbox.classList.contains('active')) {
+            prevLightboxImage();
+        } else {
+            prevSlide();
+        }
+    } else if (touchStartX - touchEndX > threshold) {
+        // Swipe left - go to next
+        if (lightbox.classList.contains('active')) {
+            nextLightboxImage();
+        } else {
+            nextSlide();
+        }
+    }
+}
+
+document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+    handleGesture();
+});</script>
+</body>
+</html>

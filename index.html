@@ -651,19 +651,8 @@
         </div>
     </footer>
    <script>
-// Client access codes mapped to Google Drive folder information
-const galleries = {
-    'kalpesh2025': {
-        name: 'kalpesh salaji\'s Wedding',
-        date: 'April 03, 2025',
-        description: 'Beautiful moments from your Wedding day',
-        // Google Drive folder ID
-        folderId: '1KqKPwDYgawY8YgZEj-HtwqdK5NldRj8I',
-        // Optional custom folder thumbnail
-        thumbnail: null
-    },
-// add if you need another folder
-};
+// Gallery configuration
+const GOOGLE_APPS_SCRIPT_URL = 'YOUR_PUBLISHED_SCRIPT_URL'; // Replace with your published Apps Script URL
 
 // DOM Elements
 const loginForm = document.getElementById('loginForm');
@@ -694,6 +683,7 @@ let currentGallery = null;
 let photosList = [];
 let cachedImages = {};
 let loadedImagesCount = 0;
+let apiKey = null;
 
 // Functions
 function updateLoadingProgress(percent, message) {
@@ -710,8 +700,39 @@ function hideLoading() {
     loading.classList.add('hidden');
 }
 
-function verifyAccessCode(code) {
-    return galleries[code] !== undefined;
+// Fetch gallery data from Google Apps Script
+async function fetchGalleryData(accessCode) {
+    showLoading();
+    updateLoadingProgress(10, 'Validating access code...');
+    
+    try {
+        const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?code=${encodeURIComponent(accessCode)}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch gallery data');
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // Save the API key
+        apiKey = data.apiKey;
+        
+        // Return gallery info
+        return {
+            name: data.name,
+            date: data.date,
+            description: data.description,
+            folderId: data.folderId,
+            thumbnail: data.thumbnail
+        };
+    } catch (error) {
+        console.error('Error fetching gallery data:', error);
+        return null;
+    }
 }
 
 // Improved Google Drive API fetching with caching
@@ -729,7 +750,7 @@ async function fetchGoogleDrivePhotos(folderId) {
             updateLoadingProgress(30, 'Using cached photos data...');
         } else {
             // Use Google Drive API to list files in the folder
-            const response = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=AIzaSyDg7IMhMjgOGlUIb8kSdBl-f0nkVI5l0hI&fields=files(id,name,mimeType,description)&pageSize=1000`);
+            const response = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,description)&pageSize=1000`);
             
             if (!response.ok) {
                 throw new Error('Failed to fetch folder contents');
@@ -912,12 +933,12 @@ function createVideoElement(src, isSlideshow = false) {
     return video;
 }
 
-async function displayGallery(code) {
+async function displayGallery(galleryInfo) {
     // Reset counter
     loadedImagesCount = 0;
     
     // Set current gallery
-    currentGallery = galleries[code];
+    currentGallery = galleryInfo;
     
     // Update gallery header
     galleryTitle.textContent = currentGallery.name;
@@ -1383,9 +1404,9 @@ function closeLightbox() {
 }
 
 // Load from URL hash if available
-function checkUrlHash() {
+async function checkUrlHash() {
     const hash = window.location.hash.substring(1);
-    if (hash && verifyAccessCode(hash)) {
+    if (hash) {
         accessCodeInput.value = hash;
         loginForm.dispatchEvent(new Event('submit'));
     }
@@ -1397,7 +1418,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLoadingProgress(100, 'Ready!');
     hideLoading();
     
-    // Check for direct link access
+    // Check for gallery access code in URL
     checkUrlHash();
     
     // Auto slideshow - only advance slides if not paused on a video
@@ -1420,25 +1441,35 @@ loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const code = accessCodeInput.value.trim();
     
-    if (verifyAccessCode(code)) {
-        showLoading();
-        
-        // Update URL hash for sharing/bookmarking
-        window.location.hash = code;
-        
-        // Load and display gallery
-        const success = await displayGallery(code);
-        
-        if (success) {
-            showGallery();
-        } else {
-            showError();
-        }
-        
+    if (!code) {
+        showError();
+        return;
+    }
+    
+    showLoading();
+    
+    // Fetch gallery data from our Google Apps Script
+    const galleryInfo = await fetchGalleryData(code);
+    
+    if (!galleryInfo) {
         hideLoading();
+        showError();
+        return;
+    }
+    
+    // Update URL hash for sharing/bookmarking
+    window.location.hash = code;
+    
+    // Load and display gallery
+    const success = await displayGallery(galleryInfo);
+    
+    if (success) {
+        showGallery();
     } else {
         showError();
     }
+    
+    hideLoading();
 });
 
 slideshowPrev.addEventListener('click', prevSlide);
@@ -1500,7 +1531,12 @@ function handleGesture() {
 
 document.addEventListener('touchstart', e => {
     touchStartX = e.changedTouches[0].screenX;
+});
+
+document.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
     handleGesture();
-});</script>
+});
+    </script>
 </body>
 </html>

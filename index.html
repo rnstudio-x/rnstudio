@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Photography Gallery</title>
+    <title>RN Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
@@ -34,33 +34,304 @@
             font-family: 'Playfair Display', serif;
         }
 
-        /* Header */
         header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 5%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Logo and Branding */
+    .header-branding {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-logo-img {
+        height: 50px;
+        width: auto;
+    }
+
+    .header-title {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .logo {
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        line-height: 1.2;
+    }
 
         .logo span {
             color: var(--accent-color);
         }
 
-        .tagline {
-            font-size: 1rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
+    .tagline {
+        font-size: 0.85rem;
+        font-weight: 300;
+        letter-spacing: 1px;
+    }
+
+    /* Navigation */
+    .header-nav {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .nav-menu {
+        display: flex;
+        list-style: none;
+        gap: 20px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-link {
+        color: white;
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        padding: 5px 0;
+        position: relative;
+        transition: color var(--transition-speed);
+    }
+
+    .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--accent-color);
+        transition: width var(--transition-speed);
+    }
+
+    .nav-link:hover {
+        color: var(--accent-color);
+    }
+
+    .nav-link:hover:after {
+        width: 100%;
+    }
+
+    /* Contact Details */
+    .header-contact {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color var(--transition-speed);
+    }
+
+    .contact-item:hover {
+        color: var(--accent-color);
+    }
+
+    .contact-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .header-social {
+        display: flex;
+        gap: 10px;
+    }
+
+    .social-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: all var(--transition-speed);
+    }
+
+    .social-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .social-icon:hover {
+        background-color: var(--accent-color);
+        transform: translateY(-3px);
+    }
+
+    /* Mobile Menu Button */
+    .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        width: 30px;
+        height: 24px;
+        position: relative;
+    }
+
+    .menu-icon,
+    .menu-icon:before,
+    .menu-icon:after {
+        background-color: white;
+        width: 100%;
+        height: 2px;
+        position: absolute;
+        transition: transform 0.3s ease;
+    }
+
+    .menu-icon {
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .menu-icon:before,
+    .menu-icon:after {
+        content: '';
+        left: 0;
+    }
+
+    .menu-icon:before {
+        top: -8px;
+    }
+
+    .menu-icon:after {
+        bottom: -8px;
+    }
+
+    .mobile-menu-toggle.active .menu-icon {
+        background-color: transparent;
+    }
+
+    .mobile-menu-toggle.active .menu-icon:before {
+        top: 0;
+        transform: rotate(45deg);
+    }
+
+    .mobile-menu-toggle.active .menu-icon:after {
+        bottom: 0;
+        transform: rotate(-45deg);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 1024px) {
+        .header-contact {
+            gap: 15px;
         }
+        
+        .contact-text {
+            display: none;
+        }
+        
+        .contact-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            justify-content: center;
+        }
+        
+        .contact-icon {
+            margin: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .mobile-menu-toggle {
+            display: block;
+            order: 3;
+        }
+        
+        .header-container {
+            flex-wrap: wrap;
+        }
+        
+        .header-branding {
+            flex: 1;
+        }
+        
+        .header-contact {
+            order: 2;
+        }
+        
+        .header-nav {
+            order: 4;
+            width: 100%;
+            flex-basis: 100%;
+        }
+        
+        .nav-menu {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .nav-menu.active {
+            display: flex;
+        }
+        
+        .nav-link:after {
+            display: none;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .header-logo-img {
+            height: 40px;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+        }
+        
+        .tagline {
+            font-size: 0.75rem;
+        }
+        
+        .header-contact {
+            gap: 10px;
+        }
+        
+        .contact-item, 
+        .social-icon {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .contact-icon,
+        .social-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
 
         /* Main Content */
         .container {
@@ -582,10 +853,59 @@
         </div>
     </div>
 
-    <!-- Header -->
     <header>
-        <div class="logo">RN<span>Studio</span></div>
-        <div class="tagline">Capturing moments, creating memories</div>
+        <div class="header-container">
+            <!-- Logo and Branding -->
+            <div class="header-branding">
+                <div class="header-title">
+                    <div class="logo">RN<span>Studio</span></div>
+                    <div class="tagline">Capturing moments, creating memories</div>
+                </div>
+            </div>
+            
+            <!-- Navigation Links -->
+            <nav class="header-nav">
+                <button class="mobile-menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <span class="menu-icon"></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="https://rnstudio-x.github.io/portfolio/" class="nav-link">Home</a></li>
+                    <li><a href="https://rnstudio-x.github.io/portfolio#gallery" class="nav-link">Portfolio</a></li>
+                    <li><a href="https://rnstudio-x.github.io/portfolio#services" class="nav-link">Services</a></li>
+                </ul>
+            </nav>
+            
+            <!-- Contact Details -->
+            <div class="header-contact">
+                <a href="mailto:rnstudio.x@gmail.com" class="contact-item">
+                    <svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <span class="contact-text">rnstudio.x@gmail.com</span>
+                </a>
+                <a href="tel:+918239372489" class="contact-item">
+                    <svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span class="contact-text">+91 8239 372489</span>
+                </a>
+                <div class="header-social">
+                    <a href="https://instagram.com/rn.studio.x" class="social-icon" aria-label="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                    <a href="https://facebook.com/rnstudio" class="social-icon" aria-label="Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
     </header>
 
     <!-- Main Content -->
@@ -642,14 +962,28 @@
             <div class="footer-logo">RN<span>Studio</span></div>
             <p class="footer-text">Professional photography services capturing your most precious moments with artistry and passion.</p>
             <div class="social-links">
-                <a href="#" title="Instagram">📷</a>
-                <a href="#" title="Facebook">👍</a>
-                <a href="#" title="Twitter">🐦</a>
-                <a href="#" title="Pinterest">📌</a>
+                <a href="https://instagram.com/rn.studio.x" title="Instagram">📷</a>
+                <a href="https://instagram.com/rn.studio.x" title="Facebook">👍</a>
+                <a href="https://instagram.com/rn.studio.x" title="Twitter">🐦</a>
+                <a href="https://Pinterest.com/rnstudiox" title="Pinterest">📌</a>
             </div>
             <p class="copyright">© 2025 RN Studio Photography. All rights reserved.</p>
         </div>
     </footer>
+    <script>
+        // Mobile Menu Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    menuToggle.classList.toggle('active');
+                });
+            }
+        });
+    </script>    
    <script>
 // Gallery configuration
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzz8olmE3G2-rp6rbUBojRq-9BgDcifTqq135V_P7JvUogJUOROAdu_52z9T6i1L6oFGA/exec'; // Replace with your published Apps Script URL
